@@ -6,7 +6,7 @@ Meaning
 the orthodox normalization is not a goal; Expandability, versatility and pragmatism is. Also avoiding using something too specific to _SQLite_ so It can be translated and deployed easily to other databases.**  
 There are reasons for each little _de-normalization_, explained later.
 
-_Extra logic is sold separately_ in clients written and being polished in Express/Vue.js, Ruby, Lazarus, LUA, for now —each part for what is convenient. Type of license of those projects are not decided, if even released. But you already can expand, adapt, and make money from this if considered a good idea.
+_Extra logic is sold separately_ in clients written and being polished in Express/Vue.js, Ruby, Lazarus, LUA, for now —each part for what is convenient. Type of license of those projects is not decided, if even released. But you already can expand, adapt, and make money from this if considered a good idea.
 
 "We put things into our system like systems management that's not that much fun for university developers," (Bill Gates, long ago)
 like this `:)`
