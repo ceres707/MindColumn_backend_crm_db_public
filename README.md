@@ -1,9 +1,9 @@
 # MindColumn_backend_crm_db_public
 Parts of the MindColumn db made public under permissive license
 
-**State of the art: NONE of this model is to be validated —it can be said passed way beyond beta stage a couple of years—, so is _field tested_, and proved convenient for almost 2 years now since the starting of de design in 2023.
-Meaning
-the orthodox normalization is not a goal; Expandability, versatility and pragmatism is. Also avoiding using something too specific to _SQLite_ so It can be translated and deployed easily to other databases.**
+**State of the art: NONE of this model is to be validated —it can be said passed way beyond beta stage a couple of years—, so is _field tested_, and proved convenient for almost 2 years now since the starting of de design in 2023.  
+Meaning  
+the orthodox normalization is not a goal; Expandability, versatility and pragmatism is. Also avoiding using something too specific to _SQLite_ so It can be translated and deployed easily to other databases.**  
 There are reasons for each little _de-normalization_, explained later.
 
 _Extra logic is sold separately_ in clients written and being polished in Express/Vue.js, Ruby, Lazarus, LUA, for now —each part for what is convenient. Type of license of those projects are not decided, if even released. But you already can expand, adapt, and make money from this if considered a good idea.
