@@ -95,7 +95,7 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 \
 `ESwivl_profile_deploy/`\
 &emsp;`victoriaCROWNEDpigeon` is a large, bluish-grey pigeon with elegant blue lace-like crests, maroon breast and red irises _(source: Wikipedia)_.\
-&emsp;`reach` is a relaxed exception regarding datatypes, application must observe a foreign constraint. Other databases like _ _QuestDB_ see this as a _symbol_\
+&emsp;`reach` is a relaxed exception regarding datatypes, application must observe a foreign constraint. Other databases like _QuestDB_ see this as a _symbol_\
 &emsp;`bis1` is a small convergence pick list that merges two worlds, one theoretical _strat_ another factual, have been used successfully.\
 &emsp;`elm` is a description of the deployment environment (convergent speech redundant, we'll see why).\
 \
@@ -248,7 +248,7 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 &emsp;Maybe each can be linked to a `terms` but keep it short and it is not needed to do so.\
 \
 `unknownIDsPhrases/`\
-&emsp;Used to detect unknown stalkers, and profiles impersonating, for best pattern detection use **`yara`** (https://github.com/VirusTotal/yara).
+&emsp;Used to detect unknown stalkers, and profiles impersonating, for best pattern detection use **`yara`** (https://github.com/VirusTotal/yara) \
 \
 `wbuffer/`\
 &emsp;is the communication to clients, very important one. This one can be used for train AI, traces can be all comms or part whatever considered.\
@@ -261,7 +261,7 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 &emsp;_spawn_: based on `interests`\
 &emsp;_reach_: demanded replica, then null `[DEL]` archived.\
 \
-`profile`is mandatory for posting, but for sources of conversation can be _NULL_, i.e.: mostly parents, for blocked can be _NULL__.\
+`profile`is mandatory for posting, but for sources of conversation can be _NULL_, i.e.: mostly parents, for blocked can be _NULL_.\
 \
 `safe_DHV_patrimony` is about facts, you studied a career, the expedient is a DHV patrimony. You have a copyright registered, that is an asset. Your car spent 5.5/100km that's pretty low, that's an DHV. Marked when not part of a discussion or charade.\
 \
