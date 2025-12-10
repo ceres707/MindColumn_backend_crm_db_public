@@ -321,7 +321,7 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 `zsys_device_authenticator`\
 `zsys_device_backup`\
 `zsys_device_backup_asset_extended/`\
-&emsp;multi `asset_antisurge_level` per _asset_, for example anti-coercion.\
+&emsp;multi `asset_antisurge_level` per _asset_, for example anti-coercion. Recommended: `SOFT_CERT` certification not depending on an external entity e.g.: _md5_ traces; `SOFT_CERT BACKUP` same but data included; `EXTERNAL_CERT` official certification with proof of validation; `HISTORIC`; `RESPONSE`.\
 &emsp;`current_dir` tends to `dir_cannonical`'s value, for moving, adaptation.\
 &emsp;`optical[n]`, `other`, `cloud[n]` for easy _Visually_ detect patterns of deployment, I know this is heterodox but it worked like a charm.\
 &emsp;`password_natural`: redundant, must be also inferred within the data of the database, see following. For correctness purposes.\
