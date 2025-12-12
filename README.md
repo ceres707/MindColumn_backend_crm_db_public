@@ -71,6 +71,7 @@ UPDATED 2025-11-14T20:25:05Z
 Here are our expanded vision to regain control of your _personal_ computer.\
 \
 Model is **completed**, it's going to take a couple of days or weeks to be fully available here, since I have to submit it to the French network as a proof of origin rather accompanied with another stuff of various tangential fields that we are finishing in a single bow (2025-11-13T13:47:21Z).\
+![mcDB](IMG/mcDB.png)
 \
 All model is auto-explicative, meaning a study has been made to detect if every single concept is unambiguous, the following is just the complementary to that fact:\
 \
@@ -333,6 +334,10 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 `zsys_device_software_deployment`\
 `zsys_deviceGateway` subset of _devices_ with specific qualities.\
 `zsys_dir`\
+![zsysdir01](IMG/zsysdir01.png)
+![zsysdir02](IMG/zsysdir02.png)
+![zsysdir03](IMG/zsysdir03.png)
+\
 `zsys_game`\
 `zsys_license`\
 `zsys_package`\
@@ -344,6 +349,8 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 `zsys_ssh`\
 `zsys_ssh_user`\
 `zsys_system`\
+![zsys01](IMG/zsys01.png)
+\
 `zsys_user`\
 `zsys_user_password`
 
