@@ -1,7 +1,9 @@
 # MindColumn_backend_crm_db_public
 Parts of the MindColumn db made public under permissive license
 
-UPDATED 2025-11-14T20:25:05Z ***Full documentation available***
+UPDATED 2025-11-14T20:25:05Z ***Full documentation available***\
+UPDATED 2025-12-12T14:32:25Z ***RC - Schema almost frozen, size:107*** is almost done, few minor quirks and _we go directly to the next Produce_ (next repo, phase)\
+**demo binaries are available**, just go to https://sqliteonline.com/ and open `https://github.com/ceres707/MindColumn_backend_crm_db_public/raw/refs/heads/main/bin/mcDBout.db3`
 
 **State of the art: NONE of this model is to be validated —it can be said passed way beyond beta stage a couple of years—, so is _field tested_, and proved convenient for almost 2 years now since the starting of de design in 2023.  
 Meaning  
