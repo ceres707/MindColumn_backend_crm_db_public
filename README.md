@@ -359,6 +359,6 @@ All model is auto-explicative, meaning a study has been made to detect if every 
 ### and the upcoming upgrades
 - [ ] Readjust `ACCOUNT` tables _if needed_ for orthodox financial compliance. That's going to happen via the Ruby client — and a boring financial course.
 - [ ] Optional: Rename fields that clash with reserved word and/or need square brackets, before continue with next repo.
-- [ ] Check soundness for `ISO8601` compliance in Z suffix dates and times. Or otherwise is a VERY good idea idk.
+- [x] Check soundness for `ISO8601` compliance in Z suffix dates and times. Or otherwise is a VERY good idea idk. UPDATED 2025-12-23T13:41:31Z, nothing can be done in schema about this, al least in _sqlite_, moved to the `skyrideCHK_Soundness` section (about data)
 - [ ] Develop a cipher mechanism for `ACCOUNT_Card` (now is reference only) and others critical.
-- [ ] On the client develop an update mech. for `ACCOUNT_Change`
+- [x] On the client develop an update mech. for `ACCOUNT_Change`. UPDATED 2025-12-23T13:45:50Z, confirmed is all about the client
