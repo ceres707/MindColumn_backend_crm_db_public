@@ -4,6 +4,7 @@ BEGIN TRANSACTION;
 -- Table: ACCOUNT_Accruals
 CREATE TABLE ACCOUNT_Accruals (
     id                      INTEGER PRIMARY KEY,
+    id_set                  INTEGER REFERENCES ACCOUNT_Accruals (id),
     A_lerce                 BOOLEAN,
     source_PUB              TEXT    REFERENCES PUB_publisher (tag),
     source                  TEXT,
@@ -22,6 +23,8 @@ CREATE TABLE ACCOUNT_Accruals (
     timeFrame_cashFlow_days DECIMAL,
     timeFrame_division      DECIMAL,
     months_agoOffset        INTEGER,
+    monthOffset             INTEGER,
+    rare_first_dayOffset    INTEGER,
     day_of_monthOffset      INTEGER,
     appearing_dayOffset     INTEGER,
     qual                    INTEGER,
@@ -31,6 +34,17 @@ CREATE TABLE ACCOUNT_Accruals (
     PAID                    BOOLEAN,
     STRAT_keep_pace_up      BOOLEAN,
     dir                     TEXT
+);
+
+
+-- Table: ACCOUNT_Accruals_CRITIC_timing
+CREATE TABLE ACCOUNT_Accruals_CRITIC_timing (
+    id                   INTEGER PRIMARY KEY,
+    [end]                INTEGER REFERENCES ACCOUNT_Accruals (id),
+    monthPrev            INTEGER,
+    day_of_monthPrev     INTEGER,
+    paid_accountableID   INTEGER REFERENCES ACCOUNT_Funds (id),
+    paid_accountableCard INTEGER REFERENCES ACCOUNT_Card (id) 
 );
 
 
@@ -187,6 +201,7 @@ CREATE TABLE cPOI (
     src              TEXT    REFERENCES cPOI (code) MATCH [FULL],
     [src-Compliance] INTEGER,
     clownfish        BOOLEAN,
+    active           BOOLEAN,
     name             TEXT,
     ginkgolink       TEXT,
     wlinkuse         TEXT    REFERENCES wlinkuse (tag) MATCH [FULL],
@@ -202,7 +217,10 @@ CREATE TABLE cPOI (
     link             TEXT,
     place1           TEXT    REFERENCES cPlace (code) MATCH [FULL],
     place2           TEXT    REFERENCES cPlace (code) MATCH [FULL],
-    qual             INTEGER
+    qual             INTEGER,
+    y_bday           INTEGER,
+    m_bday           INTEGER,
+    d_bday           INTEGER
 )
 WITHOUT ROWID;
 
@@ -251,11 +269,13 @@ CREATE TABLE ESwivl_profile_deploy (
 
 -- Table: ESwivl_reach
 CREATE TABLE ESwivl_reach (
-    id          INTEGER PRIMARY KEY,
-    reach_vMark TEXT,
-    type        TEXT,
-    subSET_desc TEXT,
-    device      TEXT    REFERENCES zsys_device (taghname) 
+    id                     INTEGER PRIMARY KEY,
+    reach_vMark            TEXT,
+    type                   TEXT,
+    auth_subSET            BOOLEAN,
+    victoria_pigeon_subSET BOOLEAN,
+    subSET_desc            TEXT,
+    device                 TEXT    REFERENCES zsys_device (taghname) 
 );
 
 
@@ -331,17 +351,29 @@ CREATE TABLE page (
     src           INTEGER REFERENCES page (id) MATCH [FULL],
     link          INTEGER,
     name          TEXT,
-    disclose_code TEXT
+    disclose_code TEXT,
+    Realm         TEXT    REFERENCES profileRealms (tag) 
 );
 
 
 -- Table: page_links
 CREATE TABLE page_links (
-    id     INTEGER PRIMARY KEY,
-    type   STRING,
+    id     INTEGER      PRIMARY KEY,
+    type   TEXT         REFERENCES page_links_tag (tag),
+    subCAT VARCHAR (24),
+    lang   VARCHAR (2),
     url    STRING,
     link   INTEGER,
     [desc] TEXT
+);
+
+
+-- Table: page_links_tag
+CREATE TABLE page_links_tag (
+    tag     TEXT    PRIMARY KEY,
+    [desc]  TEXT,
+    [order] DECIMAL,
+    starred BOOLEAN
 );
 
 
@@ -491,7 +523,8 @@ CREATE TABLE profile_accounts_sitelist (
     paid_accountableCard INTEGER REFERENCES ACCOUNT_Card (id),
     accountable_defects  TEXT,
     paid_PayPal          BOOLEAN,
-    paid_BTC             BOOLEAN
+    paid_BTC             BOOLEAN,
+    travelDEC            BOOLEAN
 );
 
 
@@ -589,17 +622,6 @@ CREATE TABLE profile_SEMANTIC_Goals_z1 (
 );
 
 
--- Table: profile_SEMANTIC_Goals_z4
-CREATE TABLE profile_SEMANTIC_Goals_z4 (
-    tag                 TEXT PRIMARY KEY
-                             REFERENCES profile_accounts_z4 (tag),
-    magnolia_goal       TEXT,
-    magnoliaCredentials TEXT,
-    magnolia_trace      DATE,
-    description         TEXT
-);
-
-
 -- Table: profile_sites
 CREATE TABLE profile_sites (
     id      INTEGER PRIMARY KEY,
@@ -642,6 +664,14 @@ CREATE TABLE profileKeywords (
 );
 
 
+-- Table: profileRealms
+CREATE TABLE profileRealms (
+    tag       TEXT PRIMARY KEY,
+    main_zone TEXT
+)
+WITHOUT ROWID;
+
+
 -- Table: PUB_landing_page
 CREATE TABLE PUB_landing_page (
     id        INTEGER PRIMARY KEY,
@@ -680,6 +710,15 @@ CREATE TABLE PUB_publisher (
 );
 
 
+-- Table: PUB_season_REVIEW
+CREATE TABLE PUB_season_REVIEW (
+    tag      TEXT    PRIMARY KEY,
+    [desc]   TEXT,
+    revieweD DATE,
+    ongoing  BOOLEAN
+);
+
+
 -- Table: PUB_submission
 CREATE TABLE PUB_submission (
     id             INTEGER PRIMARY KEY,
@@ -704,18 +743,42 @@ CREATE TABLE PUB_submission (
 );
 
 
+-- Table: PUB_submission_REVIEWED
+CREATE TABLE PUB_submission_REVIEWED (
+    id                 INTEGER PRIMARY KEY,
+    Online             BOOLEAN,
+    season             TEXT    REFERENCES PUB_season_REVIEW (tag),
+    revieweD           DATE,
+    publisher          TEXT    REFERENCES PUB_publisher (tag),
+    essay              TEXT,
+    version            TEXT,
+    cover              TEXT,
+    copyw_pitch        TEXT,
+    keywords_OK        BOOLEAN,
+    categories_OK      BOOLEAN,
+    price              DECIMAL,
+    price_currency     TEXT,
+    paperb_pitch       TEXT,
+    ISBN_OK            BOOLEAN,
+    needsFurtherAction BOOLEAN,
+    status             TEXT,
+    needsURL           TEXT
+);
+
+
 -- Table: PUB_title
 CREATE TABLE PUB_title (
-    id         INTEGER PRIMARY KEY,
-    creation   DATE,
-    essay      TEXT,
-    wersion    BOOLEAN,
-    type       TEXT,
-    ASIN       TEXT,
-    author     TEXT,
-    withdrawed BOOLEAN,
-    title_LANG TEXT,
-    title_EN   TEXT
+    id                  INTEGER PRIMARY KEY,
+    creation            DATE,
+    essay               TEXT,
+    strat_mainPresented BOOLEAN,
+    wersion             BOOLEAN,
+    type                TEXT,
+    ASIN                TEXT,
+    author              TEXT,
+    withdrawed          BOOLEAN,
+    title_LANG          TEXT,
+    title_EN            TEXT
 );
 
 
@@ -775,6 +838,7 @@ CREATE TABLE SIM_w (
     provider                      TEXT,
     net_Whole_dealer              TEXT,
     net_dealerAbuse_blocked       BOOLEAN,
+    net_dealerAbuse_past          BOOLEAN,
     qual                          INTEGER
 );
 
@@ -899,7 +963,7 @@ CREATE TABLE wbuffer_biz (
 -- Table: wbuffer_biz_lateral
 CREATE TABLE wbuffer_biz_lateral (
     id              INTEGER PRIMARY KEY,
-    wbuffer         INTEGER REFERENCES wbuffer_biz (id),
+    wbuffer_biz     INTEGER REFERENCES wbuffer_biz (id),
     reaction_bylink TEXT
 );
 
@@ -938,16 +1002,19 @@ CREATE TABLE whashtag (
 
 -- Table: whtagset
 CREATE TABLE whtagset (
-    id       INTEGER PRIMARY KEY,
-    profile1 TEXT    REFERENCES profile (tag) 
-)
-WITHOUT ROWID;
+    id          INTEGER PRIMARY KEY,
+    profile1    TEXT    REFERENCES profile (tag),
+    [desc]      TEXT,
+    lang_angled TEXT,
+    Realm       TEXT    REFERENCES profileRealms (tag) 
+);
 
 
 -- Table: wlink
 CREATE TABLE wlink (
     id         INTEGER PRIMARY KEY,
     src        INTEGER REFERENCES wlink (id) MATCH [FULL],
+    active     BOOLEAN,
     name       TEXT,
     lang       TEXT,
     link       TEXT,
@@ -1136,14 +1203,23 @@ CREATE TABLE zsys__devicePhysicalAttr_own_place (
 
 -- Table: zsys_ailleurs_deviceGateway
 CREATE TABLE zsys_ailleurs_deviceGateway (
-    vpn          TEXT    PRIMARY KEY,
-    gateway      TEXT    REFERENCES zsys_deviceGateway (tagname),
-    magnolia     TEXT,
-    alerce       INTEGER REFERENCES ACCOUNT_Accruals (id),
-    site_account INTEGER REFERENCES profile_accounts_sitelist (id),
-    info_url     TEXT,
-    datafile     TEXT,
-    [desc]       TEXT
+    vpn                     TEXT    PRIMARY KEY,
+    gateway                 TEXT    REFERENCES zsys_deviceGateway (tagname),
+    tailoredTech_andVendors TEXT    REFERENCES zsys_ailleurs_Tech (tag),
+    magnolia                TEXT,
+    alerce                  INTEGER REFERENCES ACCOUNT_Accruals (id),
+    site_account            INTEGER REFERENCES profile_accounts_sitelist (id),
+    datafile                TEXT,
+    [desc]                  TEXT
+);
+
+
+-- Table: zsys_ailleurs_Tech
+CREATE TABLE zsys_ailleurs_Tech (
+    tag        TEXT PRIMARY KEY,
+    [desc]     TEXT,
+    url        TEXT,
+    info_extra TEXT
 );
 
 
@@ -1170,9 +1246,10 @@ CREATE TABLE zsys_device (
 
 -- Table: zsys_device_authenticator
 CREATE TABLE zsys_device_authenticator (
-    taghname TEXT    REFERENCES zsys_device (taghname),
-    holding  TEXT,
-    site     INTEGER REFERENCES profile_accounts_sitelist (id) 
+    taghname     TEXT    REFERENCES zsys_device (taghname),
+    holding      TEXT,
+    site         INTEGER REFERENCES profile_accounts_sitelist (id),
+    optional_2FA BOOLEAN
 );
 
 
@@ -1216,6 +1293,14 @@ CREATE TABLE zsys_device_backup_asset_extended (
     password_extra4cloud_zerotrust TEXT    REFERENCES zsys_user_password (password_class),
     url                            STRING,
     content                        TEXT
+);
+
+
+-- Table: zsys_device_drives
+CREATE TABLE zsys_device_drives (
+    tag         TEXT PRIMARY KEY,
+    driveBefore TEXT REFERENCES zsys_device_drives (tag),
+    [desc]      TEXT
 );
 
 
@@ -1264,12 +1349,14 @@ CREATE TABLE zsys_device_software_deployment (
 
 -- Table: zsys_deviceGateway
 CREATE TABLE zsys_deviceGateway (
-    tagname       TEXT    PRIMARY KEY
-                          REFERENCES zsys_device (taghname),
-    maintenance   BOOLEAN,
-    localNet_only BOOLEAN,
-    ailleurs_CFG  TEXT    REFERENCES zsys_ailleurs_deviceGateway (vpn),
-    [desc]        TEXT
+    tagname           TEXT    PRIMARY KEY,
+    named_ALT         TEXT,
+    segment_of_device TEXT    REFERENCES zsys_device (taghname),
+    maintenance       BOOLEAN,
+    localNet_only     BOOLEAN,
+    ailleurs_CFG      TEXT    REFERENCES zsys_ailleurs_deviceGateway (vpn),
+    segment_user      TEXT    REFERENCES zsys_user (username),
+    [desc]            TEXT
 );
 
 
@@ -1278,6 +1365,7 @@ CREATE TABLE zsys_dir (
     id      INTEGER PRIMARY KEY,
     [order] DECIMAL,
     dir     TEXT,
+    main    INTEGER REFERENCES zsys_dir (id),
     root    BOOLEAN,
     special BOOLEAN,
     tag     BOOLEAN
@@ -1287,6 +1375,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1295,6 +1384,7 @@ INSERT INTO zsys_dir (
                          1,
                          1,
                          '[Internet]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1304,6 +1394,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1312,6 +1403,7 @@ INSERT INTO zsys_dir (
                          2,
                          2,
                          '[Network]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1321,6 +1413,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1329,6 +1422,7 @@ INSERT INTO zsys_dir (
                          3,
                          3,
                          '[Multimedia]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1338,6 +1432,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1346,6 +1441,7 @@ INSERT INTO zsys_dir (
                          4,
                          4,
                          '[Design]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1355,6 +1451,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1363,6 +1460,7 @@ INSERT INTO zsys_dir (
                          5,
                          5,
                          '[Music]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1372,6 +1470,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1380,6 +1479,7 @@ INSERT INTO zsys_dir (
                          6,
                          6,
                          '[Science]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1389,6 +1489,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1397,6 +1498,7 @@ INSERT INTO zsys_dir (
                          7,
                          7,
                          '[Office]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1406,6 +1508,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1414,6 +1517,7 @@ INSERT INTO zsys_dir (
                          8,
                          8,
                          '[Text editors]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1423,6 +1527,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1431,6 +1536,7 @@ INSERT INTO zsys_dir (
                          9,
                          9,
                          '[Programming]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1440,6 +1546,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1448,6 +1555,7 @@ INSERT INTO zsys_dir (
                          10,
                          10,
                          '[Data-Science]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1457,6 +1565,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1465,6 +1574,7 @@ INSERT INTO zsys_dir (
                          11,
                          11,
                          '[System]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1474,6 +1584,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1482,6 +1593,7 @@ INSERT INTO zsys_dir (
                          12,
                          12,
                          '[Shells]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1491,6 +1603,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1499,6 +1612,7 @@ INSERT INTO zsys_dir (
                          13,
                          13,
                          '[Window managers]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1508,6 +1622,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1517,6 +1632,7 @@ INSERT INTO zsys_dir (
                          14,
                          'Vintage',
                          NULL,
+                         NULL,
                          1,
                          NULL
                      );
@@ -1525,6 +1641,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1534,6 +1651,7 @@ INSERT INTO zsys_dir (
                          15,
                          'Juegos',
                          NULL,
+                         NULL,
                          1,
                          NULL
                      );
@@ -1542,6 +1660,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1551,6 +1670,7 @@ INSERT INTO zsys_dir (
                          16,
                          '[PLATFORM]',
                          NULL,
+                         NULL,
                          1,
                          NULL
                      );
@@ -1559,6 +1679,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1568,6 +1689,7 @@ INSERT INTO zsys_dir (
                          3.9,
                          '[Demoscene & Audiovisual]',
                          NULL,
+                         NULL,
                          1,
                          NULL
                      );
@@ -1576,6 +1698,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1584,6 +1707,7 @@ INSERT INTO zsys_dir (
                          18,
                          9.3,
                          'Web',
+                         9,
                          NULL,
                          NULL,
                          NULL
@@ -1593,6 +1717,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1601,6 +1726,7 @@ INSERT INTO zsys_dir (
                          19,
                          3.1,
                          'image',
+                         3,
                          NULL,
                          NULL,
                          NULL
@@ -1610,6 +1736,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1618,6 +1745,7 @@ INSERT INTO zsys_dir (
                          20,
                          4.3,
                          'layered-editor',
+                         4,
                          NULL,
                          NULL,
                          NULL
@@ -1627,14 +1755,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
                          21,
-                         11.8,
+                         11.71,
                          'elastic-search',
+                         11,
                          NULL,
                          NULL,
                          NULL
@@ -1644,6 +1774,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1652,6 +1783,7 @@ INSERT INTO zsys_dir (
                          22,
                          7.1,
                          'text-processor',
+                         7,
                          NULL,
                          NULL,
                          NULL
@@ -1661,6 +1793,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1669,15 +1802,17 @@ INSERT INTO zsys_dir (
                          23,
                          9.2,
                          'IDE-selfhosted-lang',
+                         9,
                          NULL,
-                         1,
-                         NULL
+                         NULL,
+                         1
                      );
 
 INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1686,6 +1821,7 @@ INSERT INTO zsys_dir (
                          24,
                          9.1,
                          'IDE',
+                         9,
                          NULL,
                          NULL,
                          NULL
@@ -1695,6 +1831,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1703,6 +1840,7 @@ INSERT INTO zsys_dir (
                          25,
                          7.4,
                          '[Knowledge base]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1712,6 +1850,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1720,6 +1859,7 @@ INSERT INTO zsys_dir (
                          26,
                          7.3,
                          'writing-assistant',
+                         7,
                          NULL,
                          NULL,
                          NULL
@@ -1729,6 +1869,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1737,6 +1878,7 @@ INSERT INTO zsys_dir (
                          27,
                          9.7,
                          '[P-Libraries]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1746,6 +1888,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1754,6 +1897,7 @@ INSERT INTO zsys_dir (
                          28,
                          10.5,
                          'decision-course-aid',
+                         10,
                          NULL,
                          NULL,
                          NULL
@@ -1763,6 +1907,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1771,6 +1916,7 @@ INSERT INTO zsys_dir (
                          29,
                          11.61,
                          'diff-merge',
+                         35,
                          NULL,
                          NULL,
                          NULL
@@ -1780,6 +1926,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1788,6 +1935,7 @@ INSERT INTO zsys_dir (
                          30,
                          11.1,
                          '[Framework]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1797,6 +1945,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1805,6 +1954,7 @@ INSERT INTO zsys_dir (
                          31,
                          11.3,
                          '[Containers]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1814,6 +1964,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1822,6 +1973,7 @@ INSERT INTO zsys_dir (
                          32,
                          11.2,
                          '[Monitoring]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1831,6 +1983,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1839,6 +1992,7 @@ INSERT INTO zsys_dir (
                          33,
                          11.4,
                          '[Compressors]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1848,6 +2002,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1856,6 +2011,7 @@ INSERT INTO zsys_dir (
                          34,
                          11.5,
                          '[Encryption]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1865,6 +2021,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1873,6 +2030,7 @@ INSERT INTO zsys_dir (
                          35,
                          11.6,
                          '[Sync]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1882,6 +2040,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1890,6 +2049,7 @@ INSERT INTO zsys_dir (
                          36,
                          11.62,
                          'mirror-backup',
+                         35,
                          NULL,
                          NULL,
                          NULL
@@ -1899,14 +2059,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
                          37,
-                         11.92,
+                         11.9,
                          '[Network-Security]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1916,14 +2078,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
                          38,
-                         11.921,
+                         11.91,
                          'firewall',
+                         37,
                          NULL,
                          NULL,
                          NULL
@@ -1933,14 +2097,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
                          39,
-                         11.922,
+                         11.92,
                          'vpn',
+                         37,
                          NULL,
                          NULL,
                          NULL
@@ -1950,6 +2116,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1958,6 +2125,7 @@ INSERT INTO zsys_dir (
                          40,
                          11.7,
                          'explorer',
+                         11,
                          NULL,
                          NULL,
                          NULL
@@ -1967,6 +2135,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1975,6 +2144,7 @@ INSERT INTO zsys_dir (
                          41,
                          11.31,
                          '[VMs]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -1984,6 +2154,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -1992,6 +2163,7 @@ INSERT INTO zsys_dir (
                          42,
                          12.1,
                          '[Scripting-tools]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -2001,6 +2173,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2010,277 +2183,6 @@ INSERT INTO zsys_dir (
                          10.1,
                          '[DBs]',
                          NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         44,
-                         10.3,
-                         '[DB-analysis]',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         45,
-                         10.6,
-                         '[Line-parsers]',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         46,
-                         10.4,
-                         '[Data-mining]',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         47,
-                         10.2,
-                         '[Data-browsers]',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         48,
-                         4.4,
-                         'diagram',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         49,
-                         7.2,
-                         'presentations',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         50,
-                         3.3,
-                         'streaming-cast',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         51,
-                         4.5,
-                         'node-editor',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         52,
-                         11.923,
-                         'pentesting',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         53,
-                         11.924,
-                         'forensics',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         54,
-                         1.9,
-                         'crawler',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         55,
-                         7.5,
-                         'spreadsheet',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         56,
-                         5.1,
-                         'MIDI',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         57,
-                         5.2,
-                         'DAW',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         58,
-                         7.6,
-                         'pub-reader',
-                         NULL,
-                         NULL,
-                         NULL
-                     );
-
-INSERT INTO zsys_dir (
-                         id,
-                         [order],
-                         dir,
-                         root,
-                         special,
-                         tag
-                     )
-                     VALUES (
-                         59,
-                         11.63,
-                         '[Deployment]',
                          1,
                          NULL,
                          NULL
@@ -2290,14 +2192,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
-                         60,
-                         13.1,
-                         'HIDplus',
+                         44,
+                         10.3,
+                         '[DB-analysis]',
+                         43,
                          NULL,
                          NULL,
                          NULL
@@ -2307,6 +2211,311 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         45,
+                         10.6,
+                         '[Line-parsers]',
+                         10,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         46,
+                         10.4,
+                         '[Data-mining]',
+                         10,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         47,
+                         10.2,
+                         '[Data-browsers]',
+                         43,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         48,
+                         4.4,
+                         'diagram',
+                         4,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         49,
+                         7.2,
+                         'presentations',
+                         7,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         50,
+                         3.3,
+                         'streaming-cast',
+                         3,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         51,
+                         4.5,
+                         'node-editor',
+                         4,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         52,
+                         11.93,
+                         'pentesting',
+                         37,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         53,
+                         11.94,
+                         'forensics',
+                         37,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         54,
+                         1.9,
+                         'crawler',
+                         1,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         55,
+                         7.5,
+                         'spreadsheet',
+                         7,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         56,
+                         5.1,
+                         'MIDI',
+                         5,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         57,
+                         5.2,
+                         'DAW',
+                         5,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         58,
+                         7.6,
+                         'pub-reader',
+                         7,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         59,
+                         11.32,
+                         '[Deployment]',
+                         NULL,
+                         1,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         60,
+                         13.1,
+                         'HIDplus',
+                         13,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2317,6 +2526,7 @@ INSERT INTO zsys_dir (
                          'neural-deep-learning',
                          NULL,
                          NULL,
+                         NULL,
                          1
                      );
 
@@ -2324,6 +2534,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2332,6 +2543,7 @@ INSERT INTO zsys_dir (
                          62,
                          9.4,
                          '[RAD]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -2341,6 +2553,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2349,6 +2562,7 @@ INSERT INTO zsys_dir (
                          63,
                          3.2,
                          'audio',
+                         3,
                          NULL,
                          NULL,
                          NULL
@@ -2358,6 +2572,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2366,6 +2581,7 @@ INSERT INTO zsys_dir (
                          64,
                          3.5,
                          'effect',
+                         3,
                          NULL,
                          NULL,
                          NULL
@@ -2375,6 +2591,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2383,6 +2600,7 @@ INSERT INTO zsys_dir (
                          65,
                          3.6,
                          'codec',
+                         3,
                          NULL,
                          NULL,
                          NULL
@@ -2392,6 +2610,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2400,6 +2619,7 @@ INSERT INTO zsys_dir (
                          66,
                          3.4,
                          'gen',
+                         3,
                          NULL,
                          NULL,
                          NULL
@@ -2409,6 +2629,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2417,6 +2638,7 @@ INSERT INTO zsys_dir (
                          67,
                          14.1,
                          'emulator',
+                         14,
                          NULL,
                          NULL,
                          NULL
@@ -2426,6 +2648,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2434,6 +2657,7 @@ INSERT INTO zsys_dir (
                          68,
                          5.3,
                          'mod-tracker',
+                         5,
                          NULL,
                          NULL,
                          NULL
@@ -2443,6 +2667,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2451,6 +2676,7 @@ INSERT INTO zsys_dir (
                          69,
                          3.7,
                          'video-cut-editor',
+                         3,
                          NULL,
                          NULL,
                          NULL
@@ -2460,6 +2686,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2468,6 +2695,7 @@ INSERT INTO zsys_dir (
                          70,
                          5.4,
                          'mod-player',
+                         5,
                          NULL,
                          NULL,
                          NULL
@@ -2477,6 +2705,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2485,6 +2714,7 @@ INSERT INTO zsys_dir (
                          71,
                          9.9,
                          'disassembler',
+                         9,
                          NULL,
                          NULL,
                          NULL
@@ -2494,6 +2724,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2502,6 +2733,7 @@ INSERT INTO zsys_dir (
                          72,
                          9.8,
                          'compiler',
+                         9,
                          NULL,
                          NULL,
                          NULL
@@ -2511,6 +2743,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2519,6 +2752,7 @@ INSERT INTO zsys_dir (
                          73,
                          9.81,
                          'transpiler',
+                         9,
                          NULL,
                          NULL,
                          NULL
@@ -2528,6 +2762,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2538,6 +2773,7 @@ INSERT INTO zsys_dir (
                          'Educational',
                          NULL,
                          NULL,
+                         NULL,
                          1
                      );
 
@@ -2545,6 +2781,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2553,6 +2790,7 @@ INSERT INTO zsys_dir (
                          75,
                          1.8,
                          'ripper',
+                         1,
                          NULL,
                          NULL,
                          NULL
@@ -2562,6 +2800,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2570,6 +2809,7 @@ INSERT INTO zsys_dir (
                          76,
                          8.1,
                          'DOS-like',
+                         8,
                          NULL,
                          NULL,
                          NULL
@@ -2579,6 +2819,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2587,6 +2828,7 @@ INSERT INTO zsys_dir (
                          77,
                          8.2,
                          'WordStar-like',
+                         8,
                          NULL,
                          NULL,
                          NULL
@@ -2596,6 +2838,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2605,6 +2848,7 @@ INSERT INTO zsys_dir (
                          19,
                          '[Further]',
                          NULL,
+                         NULL,
                          1,
                          NULL
                      );
@@ -2613,6 +2857,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2621,6 +2866,7 @@ INSERT INTO zsys_dir (
                          79,
                          2.5,
                          'IRC',
+                         2,
                          NULL,
                          NULL,
                          NULL
@@ -2630,14 +2876,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
                          80,
-                         11.9,
+                         11.8,
                          '[Security]',
+                         NULL,
                          1,
                          NULL,
                          NULL
@@ -2647,14 +2895,16 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
                      )
                      VALUES (
                          81,
-                         11.91,
+                         11.81,
                          'anti-virus',
+                         80,
                          NULL,
                          NULL,
                          NULL
@@ -2664,6 +2914,7 @@ INSERT INTO zsys_dir (
                          id,
                          [order],
                          dir,
+                         main,
                          root,
                          special,
                          tag
@@ -2672,6 +2923,45 @@ INSERT INTO zsys_dir (
                          82,
                          7.7,
                          'natural-language-processing',
+                         25,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         83,
+                         9.71,
+                         'peg',
+                         27,
+                         NULL,
+                         NULL,
+                         NULL
+                     );
+
+INSERT INTO zsys_dir (
+                         id,
+                         [order],
+                         dir,
+                         main,
+                         root,
+                         special,
+                         tag
+                     )
+                     VALUES (
+                         84,
+                         9.82,
+                         'parser',
+                         9,
                          NULL,
                          NULL,
                          NULL
@@ -2690,15 +2980,18 @@ CREATE TABLE zsys_game (
     aqRoSea             BOOLEAN,
     url                 TEXT,
     qual                INTEGER,
+    overtook_reason     TEXT,
     device1             TEXT    REFERENCES zsys_device (taghname),
     steam_cloud         BOOLEAN,
+    epic_cloud          BOOLEAN,
     account1            INTEGER REFERENCES profile_accounts_sitelist (id),
     account1_bis        INTEGER REFERENCES profile_accounts_sitelist (id),
     device2             TEXT    REFERENCES zsys_device (taghname),
     steady              BOOLEAN,
     account_race2       INTEGER REFERENCES profile_accounts_sitelist (id),
     notes               TEXT,
-    account_old_unknown INTEGER REFERENCES profile_accounts_sitelist (id) 
+    account_old_unknown INTEGER REFERENCES profile_accounts_sitelist (id),
+    reviewD             DATE
 );
 
 
@@ -2837,7 +3130,7 @@ INSERT INTO zsys_system (
                         )
                         VALUES (
                             'Linux Endeavour OS',
-                            8,
+                            7,
                             NULL,
                             'Unix',
                             NULL
@@ -2942,7 +3235,7 @@ INSERT INTO zsys_system (
                         )
                         VALUES (
                             'Linux Parrot OS',
-                            7.6,
+                            7.4,
                             NULL,
                             'Unix',
                             NULL
@@ -3122,7 +3415,7 @@ INSERT INTO zsys_system (
                         )
                         VALUES (
                             'Linux Alma Linux',
-                            7.6,
+                            7.4,
                             NULL,
                             'Unix',
                             NULL
@@ -3152,7 +3445,7 @@ INSERT INTO zsys_system (
                         )
                         VALUES (
                             'Linux Manjaro',
-                            6,
+                            7,
                             NULL,
                             'Unix',
                             NULL
@@ -3578,6 +3871,36 @@ INSERT INTO zsys_system (
                             NULL
                         );
 
+INSERT INTO zsys_system (
+                            tag,
+                            qual,
+                            support,
+                            type,
+                            archpref
+                        )
+                        VALUES (
+                            'Wear OS 5.0',
+                            5,
+                            NULL,
+                            NULL,
+                            NULL
+                        );
+
+INSERT INTO zsys_system (
+                            tag,
+                            qual,
+                            support,
+                            type,
+                            archpref
+                        )
+                        VALUES (
+                            'Linux Ultramarine',
+                            8.6,
+                            NULL,
+                            'Unix',
+                            NULL
+                        );
+
 
 -- Table: zsys_user
 CREATE TABLE zsys_user (
@@ -3585,6 +3908,7 @@ CREATE TABLE zsys_user (
     password_class             TEXT,
     password                   TEXT,
     [root-side_password_class] TEXT,
+    device_name                TEXT,
     [root-side_password]       TEXT,
     domain                     TEXT,
     cloud_login                TEXT,
